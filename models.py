@@ -1,19 +1,16 @@
 from pydantic import BaseModel
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
-
+from database import Base
 
 class Item(BaseModel):
     name: str
     price: float
     description: str = None
 
-Base = declarative_base()
-
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    first_name = Column(String(100), index=True)
-    last_name = Column(String(100), index=True)
-    City = Column(String(100), index=True)
+    name = Column(String(50), index=True, nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    password = Column(String(100), index=True, nullable=False)
 

@@ -1,30 +1,25 @@
 from fastapi import FastAPI, Depends
-from models import Item, Base, User
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.orm import sessionmaker, Session
-
-DATABASE_URL = "mysql+mysqlconnector://root:Daniel%408606@localhost:3306/fastapi_db"
-
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base.metadata.create_all(bind=engine)
+from models import Item, User
+from sqlalchemy.orm import Session
+from database import get_db
+from database import engine, Base
 
 app = FastAPI()
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+Base.metadata.create_all(bind=engine)
 
+#create a new user
 @app.post("/users/")
-def create_user(first_name: str, last_name: str, City:str, db: Session = Depends(get_db)):
-    new_user = User(first_name=first_name, last_name=last_name, City=City)
+def create_user(name: str, email: str, password:str, db: Session = Depends(get_db)):
+    new_user = User(name=name, email=email, password=password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return {"message": "User created", "user": new_user}
+# get all users
+@app.get("/users/")
+def get_users(db: Session = Depends(get_db)):
+    return db.query(User).all()
 
 @app.post("/items/")
 def create_item(item: Item):
@@ -38,6 +33,3 @@ def read_root():
 def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}
 
-@app.get("/products/{product_id}")
-def read_product(product_id: int, q: str = None):
-    return {"product_id": product_id, "q": q}
