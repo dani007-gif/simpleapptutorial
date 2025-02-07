@@ -36,7 +36,9 @@ def register_user(name: str = Form(...), email: str = Form(...), password: str =
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"message": "User registered ", "user": new_user}
+    return RedirectResponse(url="/static/Login.html", status_code=302)
+
+   # return {"message": "User registered ", "user": new_user}
 
 #Handling Login
 @app.post("/login/")
@@ -46,7 +48,7 @@ def login_user(email: str = Form(...), password: str = Form(...), db: Session = 
     if not user or not verify_password(password, user.password):
         return JSONResponse(status_code=401, content={"error": "Invalid credentials"})
 
-    return RedirectResponse(url="/Login.html", status_code=302)
+    return RedirectResponse(url="/static/Userpage.html", status_code=302)
 
 
 # get all users
